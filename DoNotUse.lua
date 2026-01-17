@@ -5,6 +5,9 @@ if not (_G.SESSION_TOKEN_A and _G.Processor) or
     return
 end
 
+_G.SESSION_TOKEN_A = _G.SESSION_TOKEN_A + 152
+_G.Processor = (_G.Processor * 2) + 7
+
 local _TOKEN = nil
 local _Start = tick()
 
