@@ -1,1 +1,1 @@
-print("loaded public pc")
+warn("Loading pc..")
