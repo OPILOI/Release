@@ -21,6 +21,8 @@ if not _TOKEN then
     return
 end
 
+warn("Validated session")
+
 local UIS = game:GetService("UserInputService")
 local isMobile = (UIS.TouchEnabled and not UIS.KeyboardEnabled)
 
