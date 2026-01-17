@@ -8,8 +8,8 @@ _G.Processor = nil
 shared.SESSION_TOKEN = nil
 shared.Processor = nil
 
-print("Loading pc..")
+warn("Loading pc..")
 
 
 
-print("Loaded pc!")
+warn("Loaded pc!")
