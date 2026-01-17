@@ -11,7 +11,7 @@ while (tick() - _Start) < 10 do
 end
 
 if not _TOKEN or type(_TOKEN) ~= "number" then
-    game.Players.LocalPlayer:Kick("Handshake Timeout")
+    game.Players.LocalPlayer:Kick("Tampering")
     return
 end
 
@@ -36,6 +36,6 @@ if _R and _TARGET then
 end
 
 if not _OK then
-    game.Players.LocalPlayer:Kick("Validation Timeout")
+    game.Players.LocalPlayer:Kick("Tampering")
     return
 end
