@@ -1,11 +1,11 @@
-if not (_G.SESSION_TOKEN_A and _G.Processor) or 
-   type(_G.SESSION_TOKEN_A) ~= "number" or 
+if not (_G.SESSION_TOKEN and _G.Processor) or 
+   type(_G.SESSION_TOKEN) ~= "number" or 
    type(_G.Processor) ~= "number" then
     game.Players.LocalPlayer:Kick("Tampering")
     return
 end
 
-_G.SESSION_TOKEN_A = _G.SESSION_TOKEN_A + 152
+_G.SESSION_TOKEN_A = _G.SESSION_TOKEN + 152
 _G.Processor = (_G.Processor * 2) + 7
 
 local _TOKEN = nil
