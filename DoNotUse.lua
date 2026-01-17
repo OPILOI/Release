@@ -1,59 +1,49 @@
 print("DEBUG")
-local _TOKEN = _G.SYNX_TOKEN
-_G.SYNX_TOKEN = nil
+
+-- 1. HANDSHAKE VERIFICATION WITH 8s GRACE
+local _TOKEN = nil
+for i = 1, 80 do -- Check every 0.1s for 8 seconds total
+    if _G.SYNX_TOKEN then
+        _TOKEN = _G.SYNX_TOKEN
+        _G.SYNX_TOKEN = nil
+        break
+    end
+    task.wait(0.1)
+end
 
 if not _TOKEN or type(_TOKEN) ~= "number" then
     game.Players.LocalPlayer:Kick("Connection not secure: Handshake Failed")
     return
 end
 
-
-
-
-
-
+-- 2. SECURITY VALIDATION (Site Check)
 local _R = request or http_request or (syn and syn.request)
-local _OK = false
-
--- 1. Explicitly pull the value from the Global table
--- We wait up to 5 seconds to make sure the loader finished writing it
 local _TARGET = nil
-for i = 1, 50 do
-    if _G.BZAGZFIG then
-        _TARGET = _G.BZAGZFIG
-        break
-    end
-    task.wait(0.1)
-end
+pcall(function() _TARGET = BZAGZFIG end)
 
--- 2. Validation Logic
+local _OK = false
 if _R and _TARGET then
-    for i = 1, 3 do -- 3 attempts to handle lag
+    -- Verification loop also respects the 8s maximum timeout window
+    for i = 1, 4 do 
         local success, r = pcall(function()
             return _R({
-                Url = "https://opiloi.github.io/WEBSITE/",
+                Url = "https://opiloi.github.io/WEBSITE/?t=" .. tick(),
                 Method = "GET",
-                Timeout = 10
+                Timeout = 8 -- Internal request timeout
             })
         end)
-
         if success and r and r.Body then
             local code = r.Body:match('id="codebox"%s+value="(.-)"')
-            if code and code == _TARGET then
-                _OK = true
-                break
-            end
+            if code == _TARGET then _OK = true break end
         end
-        task.wait(1)
+        task.wait(2) -- Spaced retries totaling 8s
     end
 end
 
--- 3. The Result
 if not _OK then
-    -- Trigger Honeypot/Brick logic if you want, otherwise just kick
-    game:GetService("Players").LocalPlayer:Kick("Security Validation Failed")
+    game.Players.LocalPlayer:Kick("Security Validation Failed (Site Mismatch)")
     return
 end
 
-print("Validation Successful - Script Running")
--- YOUR MAIN SCRIPT START HERE
+print("Validation Successful - Main Script Active")
+-- [[ MAIN CODE HERE ]] --
