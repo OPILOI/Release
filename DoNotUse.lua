@@ -1,82 +1,63 @@
--- 1. Token Verification (The Handshake)
-if not (_G.SESSION_TOKEN or shared.SESSION_TOKEN) then
-    game.Players.LocalPlayer:Kick("Tampering (Step 5 Error)")
+-- 1. Immediate Token Recovery
+local session = _G.SESSION_TOKEN or shared.SESSION_TOKEN
+local processor = _G.Processor or shared.Processor
+
+if not (session and processor) then
+    game.Players.LocalPlayer:Kick("Initialization Error")
     return
 end
 
-if not _G.SESSION_TOKEN and shared.SESSION_TOKEN then
-    _G.SESSION_TOKEN = shared.SESSION_TOKEN
-    _G.Processor = shared.Processor
-end
-
--- 2. Sync Token Loop (The Timing Guard)
-local _TOKEN = nil
-local _Start = tick()
-while (tick() - _Start) < 10 do
-    local currentToken = _G.SYNX_TOKEN or shared.SYNX_TOKEN
-    if currentToken then
-        _TOKEN = currentToken
-        _G.SYNX_TOKEN = nil
-        shared.SYNX_TOKEN = nil
-        break
-    end
-    task.wait(0.2)
-end
-
+-- 2. Fast Sync Check (Reduced from 10s to 2s)
+local _TOKEN = _G.SYNX_TOKEN or shared.SYNX_TOKEN
 if not _TOKEN then
-    game.Players.LocalPlayer:Kick("Tampering (Sync Failed)")
-    return
+    local start = tick()
+    while tick() - start < 2 do 
+        _TOKEN = _G.SYNX_TOKEN or shared.SYNX_TOKEN
+        if _TOKEN then break end
+        task.wait(0.1)
+    end
 end
 
--- 3. Device and Capability Detection
+-- 3. Capability Setup
 local _R = request or http_request or (syn and syn.request) or (fluxus and fluxus.request)
 local _TARGET = tostring(_G.BZAGZFIG or ""):lower():gsub("%s+", "")
-local UserInputService = game:GetService("UserInputService")
-local isMobile = (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled)
+local UIS = game:GetService("UserInputService")
+local isMobile = (UIS.TouchEnabled and not UIS.KeyboardEnabled)
+
+-- 4. Fast Validation Logic
 local _OK = false
 
--- 4. Website Validation Logic
-if _R then
-    local _VStart = tick()
-    while (tick() - _VStart) < 12 do
-        local success, r = pcall(function()
-            -- Cache buster added to URL to force fresh data
-            return _R({
-                Url = "https://opiloi.github.io/WEBSITE/?t=" .. math.random(1, 999999), 
-                Method = "GET", 
-                Timeout = 8
-            })
-        end)
-        
-        if success and r and r.Body then
-            -- Flexible regex to find value regardless of quotes or spaces
-            local foundCode = r.Body:match('value%s*=%s*"%s*(.-)%s*"') or r.Body:match("value%s*=%s*'%s*(.-)%s*'")
-            
-            if foundCode then
-                foundCode = tostring(foundCode):lower():gsub("%s+", "")
-                if _TARGET ~= "" and foundCode == _TARGET then 
-                    _OK = true 
-                    break 
-                end
-            end
+if isMobile or not _R then
+    -- Mobile and weak executors get an instant pass to prevent "Stuck" screen
+    _OK = true 
+else
+    -- PC/High-end executors get one fast attempt (3s timeout)
+    local success, r = pcall(function()
+        return _R({
+            Url = "https://opiloi.github.io/WEBSITE/?t=" .. math.random(1, 999), 
+            Method = "GET", 
+            Timeout = 3
+        })
+    end)
+    
+    if success and r and r.Body then
+        local found = r.Body:match('value%s*=%s*"%s*(.-)%s*"') or r.Body:match("value%s*=%s*'%s*(.-)%s*'")
+        if found and tostring(found):lower():gsub("%s+", "") == _TARGET then
+            _OK = true
         end
-        task.wait(1)
+    else
+        -- If website fails to load on PC, we still allow entry if BZAGZFIG was set
+        if _G.BZAGZFIG then _OK = true end 
     end
 end
 
--- 5. Final Gateway
-if not _OK and isMobile then
-    warn("Mobile Safety Bypass Engaged (Validation Timeout)")
-    _OK = true
-end
-
+-- 5. Final Gateway (No more long waiting)
 if not _OK then
-    game.Players.LocalPlayer:Kick("Validation Failed (Check Website Code)")
+    game.Players.LocalPlayer:Kick("Validation Timeout")
     return
 end
 
--- 6. Redirection with Flag System
-warn("Validated session..")
+-- 6. Direct Load
 if isMobile then
     _G.MOBILE_VALIDATED = true
     loadstring(game:HttpGet("https://raw.githubusercontent.com/OPILOI/Release/refs/heads/main/PublicScript/mobile.lua"))()
@@ -85,13 +66,12 @@ else
     loadstring(game:HttpGet("https://raw.githubusercontent.com/OPILOI/Release/refs/heads/main/PublicScript/pc.lua"))()
 end
 
--- 7. Delayed Memory Cleanup
-task.delay(10, function()
+-- 7. Cleanup
+task.delay(3, function()
     _G.SESSION_TOKEN = nil
     _G.Processor = nil
-    _G.PC_VALIDATED = nil
-    _G.MOBILE_VALIDATED = nil
+    _G.SYNX_TOKEN = nil
     _G.BZAGZFIG = nil
     shared.SESSION_TOKEN = nil
-    shared.Processor = nil
+    shared.SYNX_TOKEN = nil
 end)
