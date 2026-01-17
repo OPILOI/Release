@@ -1,3 +1,4 @@
+-- This script was obfuscated by Luraph (https://lura.ph)
 local session = _G.SESSION_TOKEN or shared.SESSION_TOKEN
 local g_token = _G.G_TOKEN or shared.G_TOKEN
 
