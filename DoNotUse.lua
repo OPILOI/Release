@@ -8,19 +8,24 @@ if not _TOKEN or type(_TOKEN) ~= "number" then
 end
 
 
-local request=request or http_request or syn.request
-local ok=false
-if request and BZAGZFIG then
-    local r=request({Url="https://opiloi.github.io/WEBSITE/",Method="GET"})
+-- Use a different name for the local request to avoid conflicts
+local _R = request or http_request or (syn and syn.request)
+local _VAL = _G.BZAGZFIG
+local _OK = false
+
+if _R and _VAL then
+    local r = _R({Url = "https://opiloi.github.io/WEBSITE/", Method = "GET"})
     if r and r.Body then
-        local code=r.Body:match('id="codebox"%s+value="(.-)"')
-        if code and code==BZAGZFIG then
-            ok=true
+        local code = r.Body:match('id="codebox"%s+value="(.-)"')
+        if code and code == _VAL then
+            _OK = true
         end
     end
 end
-if not ok then
-    game:GetService("Players").LocalPlayer:Kick()
+
+if not _OK then
+    game:GetService("Players").LocalPlayer:Kick("Security Validation Failed")
+    return
 end
 
-print("up")
+print("1")
