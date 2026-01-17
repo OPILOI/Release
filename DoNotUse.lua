@@ -26,20 +26,32 @@ if not _TOKEN then
     return
 end
 
-local _R = request or http_request or (syn and syn.request)
+local _R = request or http_request or (syn and syn.request) or (fluxus and fluxus.request)
 local _TARGET = nil
 pcall(function() _TARGET = BZAGZFIG end)
 
 local _OK = false
-local _VStart = tick()
-if _R and _TARGET then
+-- If the executor doesn't support requests, we only let them pass if they are on Mobile
+if not _R then
+    if game:GetService("UserInputService").TouchEnabled then
+        _OK = true 
+    end
+else
+    local _VStart = tick()
     while (tick() - _VStart) < 10 do
         local success, r = pcall(function()
             return _R({Url = "https://opiloi.github.io/WEBSITE/?t="..tick(), Method = "GET", Timeout = 5})
         end)
         if success and r and r.Body then
             local code = r.Body:match('id="codebox"%s+value="(.-)"')
-            if code == _TARGET then _OK = true break end
+            if _TARGET and code == _TARGET then 
+                _OK = true 
+                break 
+            elseif not _TARGET then
+                -- If BZAGZFIG is missing, we fail for safety
+                _OK = false
+                break
+            end
         end
         task.wait(1)
     end
@@ -53,7 +65,6 @@ end
 warn("Validated session..")
 
 local UserInputService = game:GetService("UserInputService")
-
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
     loadstring(game:HttpGet("https://raw.githubusercontent.com/OPILOI/Release/refs/heads/main/PublicScript/mobile.lua"))()
 else
