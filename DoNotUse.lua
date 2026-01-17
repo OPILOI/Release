@@ -1,12 +1,10 @@
-if not (_G.SESSION_TOKEN and _G.Processor) or 
-   type(_G.SESSION_TOKEN) ~= "number" or 
-   type(_G.Processor) ~= "number" then
+if not (_G.SESSION_TOKEN and _G.Processor) or type(_G.SESSION_TOKEN) ~= "number" or type(_G.Processor) ~= "number" then
     game.Players.LocalPlayer:Kick("Tampering")
     return
 end
 
-_G.SESSION_TOKEN_A = _G.SESSION_TOKEN + 152
-_G.Processor = (_G.Processor * 2) + 7
+_G.SESSION_TOKEN = _G.SESSION_TOKEN + 1
+_G.Processor = _G.Processor + 1
 
 local _TOKEN = nil
 local _Start = tick()
@@ -52,11 +50,14 @@ end
 
 warn("Validated session..")
 
-
 local UserInputService = game:GetService("UserInputService")
 
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+    _G.SESSION_TOKEN = nil
+    _G.Processor = nil
     loadstring(game:HttpGet("https://raw.githubusercontent.com/OPILOI/Release/refs/heads/main/PublicScript/mobile.lua"))()
 else
+    _G.SESSION_TOKEN = nil
+    _G.Processor = nil
     loadstring(game:HttpGet("https://raw.githubusercontent.com/OPILOI/Release/refs/heads/main/PublicScript/pc.lua"))()
 end
