@@ -53,16 +53,16 @@ end
 warn("Validated session..")
 
 local UserInputService = game:GetService("UserInputService")
+
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
-    _G.SESSION_TOKEN = nil
-    _G.Processor = nil
-    shared.SESSION_TOKEN = nil
-    shared.Processor = nil
     loadstring(game:HttpGet("https://raw.githubusercontent.com/OPILOI/Release/refs/heads/main/PublicScript/mobile.lua"))()
 else
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/OPILOI/Release/refs/heads/main/PublicScript/pc.lua"))()
+end
+
+task.delay(5, function()
     _G.SESSION_TOKEN = nil
     _G.Processor = nil
     shared.SESSION_TOKEN = nil
     shared.Processor = nil
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/OPILOI/Release/refs/heads/main/PublicScript/pc.lua"))()
-end
+end)
