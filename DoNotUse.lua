@@ -1,20 +1,27 @@
-if not (_G.SESSION_TOKEN and _G.Processor) or type(_G.SESSION_TOKEN) ~= "number" or type(_G.Processor) ~= "number" then
+if not (_G.SESSION_TOKEN or shared.SESSION_TOKEN) then
     game.Players.LocalPlayer:Kick("Tampering (Step 5 Error)")
     return
+end
+
+if not _G.SESSION_TOKEN and shared.SESSION_TOKEN then
+    _G.SESSION_TOKEN = shared.SESSION_TOKEN
+    _G.Processor = shared.Processor
 end
 
 local _TOKEN = nil
 local _Start = tick()
 while (tick() - _Start) < 10 do
-    if _G.SYNX_TOKEN then
-        _TOKEN = _G.SYNX_TOKEN
+    local currentToken = _G.SYNX_TOKEN or shared.SYNX_TOKEN
+    if currentToken then
+        _TOKEN = currentToken
         _G.SYNX_TOKEN = nil
+        shared.SYNX_TOKEN = nil
         break
     end
     task.wait(0.2)
 end
 
-if not _TOKEN or type(_TOKEN) ~= "number" then
+if not _TOKEN then
     game.Players.LocalPlayer:Kick("Tampering (Sync Failed)")
     return
 end
@@ -45,14 +52,17 @@ end
 
 warn("Validated session..")
 
-_G.SESSION_TOKEN = nil
-_G.Processor = nil
-shared.SESSION_TOKEN = nil
-shared.Processor = nil
-
 local UserInputService = game:GetService("UserInputService")
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+    _G.SESSION_TOKEN = nil
+    _G.Processor = nil
+    shared.SESSION_TOKEN = nil
+    shared.Processor = nil
     loadstring(game:HttpGet("https://raw.githubusercontent.com/OPILOI/Release/refs/heads/main/PublicScript/mobile.lua"))()
 else
+    _G.SESSION_TOKEN = nil
+    _G.Processor = nil
+    shared.SESSION_TOKEN = nil
+    shared.Processor = nil
     loadstring(game:HttpGet("https://raw.githubusercontent.com/OPILOI/Release/refs/heads/main/PublicScript/pc.lua"))()
 end
