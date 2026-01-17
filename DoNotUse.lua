@@ -1,10 +1,9 @@
--- This script was obfuscated by Luraph (https://lura.ph)
+-- Bridge Script (Step 5)
 local session = _G.SESSION_TOKEN or shared.SESSION_TOKEN
-local g_token = _G.G_TOKEN or shared.G_TOKEN
 
--- Check only for these two
-if not (session and g_token) then
-    game.Players.LocalPlayer:Kick("Initialization Error")
+-- Processor and G_Token are now optional, so we don't check them here
+if not session then
+    game.Players.LocalPlayer:Kick("Initialization Error: Session Missing")
     return
 end
 
